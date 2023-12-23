@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Confirmation</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    {% if request.session.otp_expired %}
+    <div class="alert alert-warning" role="alert">
+        OTP expired. Please request a new OTP.
+    </div>
+    {% else %}
+        {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <strong>CONFIRM YOUR ACCOUNT</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>Check the inbox of your email - {{ email }} - and enter the OTP.</p>
+                            <form id="otpForm" action="{% url 'otp_verification_signup' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" id="expiry-time" name="expiry_time" value="{{ expiry_time_in_seconds }}">
+    
+                                <div class="form-group">
+                                    <label for="otp">Enter the OTP:</label>
+                                    <input type="text" class="form-control" id="otp" placeholder="Enter the OTP" name="otp" required>
+                                </div>
+    
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Verify</button>
+                                </div>
+                            </form>
+    
+                            <div class="text-center mt-3">
+                                <a href="{% url 'resend_otp_signup' %}">Resend OTP</a>
+                            </div>
+    
+                            <div class="card-body">
+                                <div id="countdown-timer" class="text-center mt-4">
+                                    <strong>Time remaining: </strong>
+                                    <span id="minutes">00</span>:<span id="seconds">00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <script>
+            // Function to update the countdown timer
+            function updateTimer() {
+            const countdownTimerElement = document.getElementById('countdown-timer');
+            let remainingTime = 120; // Example: 2 minutes
+
+            // Check if remaining time is stored in the session
+            const storedRemainingTime = parseInt(sessionStorage.getItem('remaining_time'));
+            if (storedRemainingTime > 0) {
+                remainingTime = storedRemainingTime;
+            }
+
+            const intervalId = setInterval(() => {
+                if (remainingTime <= 0) {
+                clearInterval(intervalId);
+                countdownTimerElement.innerHTML = '<strong>Time expired.</strong>';
+                // Handle expiry logic if needed
+                return;
+                }
+
+                remainingTime--;
+                sessionStorage.setItem('remaining_time', remainingTime);
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+
+                countdownTimerElement.innerHTML = `Time remaining: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+            }
+
+            // Call the updateTimer function after the DOM has fully loaded
+            document.addEventListener("DOMContentLoaded", function() {
+            updateTimer();
+
+            // Check if the form was submitted with an incorrect OTP
+            const otpForm = document.getElementById('otpForm');
+            otpForm.addEventListener('submit', function(event) {
+                const otpInput = document.getElementById('otp');
+                const countdownTimerElement = document.getElementById('countdown-timer');
+
+                if (otpInput.value.trim() !== '' && countdownTimerElement.textContent.includes('expired')) {
+                // If OTP is not empty and the timer has expired, prevent the form submission
+                event.preventDefault();
+                alert('OTP expired. Please request a new OTP.');
+                }
+            });
+            });
+        </script>
+    {% endif %}
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title itemprop="name">Stock report</title>
+
+<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<style>
+
+         body, html {
+            margin: 0;
+            padding: 0;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            margin: 20mm;
+        }
+
+        .sales-container
+        {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .sales {
+            background: #fff;
+            color: #666666;
+            border-radius: 2px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+            padding: 20px;
+        }
+
+
+
+
+
+        h1
+        {
+            text-align: center;
+        }
+
+        .report-section
+        {
+            margin-bottom: 30px;
+        }
+
+
+
+
+
+        .sales h2 {
+            margin-top: 0;
+            line-height: 1em;
+        }
+
+
+        .sales table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+        .sales table th,
+        .sales table td
+        {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+
+        #pdfButton {
+            border-radius: 20px;
+            background-color: orange;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px; /* Adjust as needed */
+        }
+                .back{
+        border-radius: 20px;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px; /* Adjust as needed */
+            text-decoration:none;
+        }
+        #excelButton {
+            border-radius: 20px;
+            background-color: orange;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px; /* Adjust as needed */
+        }
+                .back{
+        border-radius: 20px;
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px; /* Adjust as needed */
+            text-decoration:none;
+        }
+
+        .active{
+        background-color:#088178 !important;
+        }
+
+        .not_active{
+        background-color:white !important;
+        color:green !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <center>
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'stock_report' %}" class="btn btn-success mx-2 not_active">Stock</a>
+                <a href="{% url 'cancelled_report' %}" class="btn btn-success mx-2 not_active">Cancelled</a>
+            </div>
+           </center>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+
+
+<div class="container sales-container ">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="grid sales">
+                <div class="grid-body">
+                    <div class="sale-title">
+                        <br>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h1>
+                                    Cancelled Orders Report 
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                    <br> <hr> <br>
+                    <div class="row">
+                        <div class="col-md-12">
+                        <h2>Stock Report</h2>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr class="line">
+                                        <th class="text-right"><strong>Order ID</strong></th>
+                                        <th class="text-left"><strong>Product</strong></th>
+                                        <th class="text-right"> <strong>Quantity</strong></th>
+                                        <th class="text-right"><strong>Cancellation Reason</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in cancelled_orders %}
+                                        <tr>
+                                            <td>{{ item.order.id }}</td>
+                                            <td>{{ item.product.name }}</td>
+                                            <td class="text-right">{{ item.quantity }}</td>
+                                            <td class="text-right">{{ item.cancellation_reason }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <br><hr><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12 text-right">
+            <a href="{% url 'admin_home' %}" class="back">Bcak To Dashboard</a>
+            <button id="pdfButton">Download PDF Report</button>
+            <button id="excelButton">Download Excel</button>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+<script>
+    document.getElementById("pdfButton").addEventListener("click", function () {
+        const salesContainer = document.querySelector(".sales-container");
+        const pdfOptions = {
+            filename: 'Cancelled_orders.pdf',
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().from(salesContainer).set(pdfOptions).save();
+    });
+    document.getElementById("excelButton").addEventListener("click", function () {
+        const table = document.querySelector(".table");
+        const ws = XLSX.utils.table_to_sheet(table);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'TodaysSalesReport.xlsx');
+    });
+</script>
+
+
+</body>
+</html>

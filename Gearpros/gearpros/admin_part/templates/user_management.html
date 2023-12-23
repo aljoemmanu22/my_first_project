@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Users List</h2>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <header class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                            <th>Serial Number</th>
+                        </div>
+                        <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                            <th>Username</th>
+                        </div>
+                        <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                            <th>Email</th>
+                        </div>
+                        <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                            <th>Mobile</th>
+                        </div>
+                        <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                            <th>Status</th>
+                        </div>
+                    </div>
+                </header>                   
+                <body>
+                    {% for user in users %}
+                    <header class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                                {{ user.user_id }}
+                            </div>
+                            <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                                {{ user.username }}
+                            </div>
+                            <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                                {{ user.email }}
+                            </div>
+                            <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                                {{ user.phone_number }}
+                            </div>
+                            
+                            <div class="col-md-2 col-12 myn-auto mb-md-0 mb-3">
+                                <form method="POST" action="{% url 'block_user' user.user_id %}">
+                                    {% csrf_token %}
+                                    {% if user.status == 'Blocked' %}
+                                        <button type="submit" name="user_id" value="{{ user.user_id }}">Unblock</button>
+                                    {% else %}
+                                        <button type="submit" name="user_id" value="{{ user.user_id }}">Block</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                            
+                        </div>
+                    </header>
+                    {% endfor %} 
+                </body>    
+            </div>   
+        </section>
+
+{% endblock %}

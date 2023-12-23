@@ -1,0 +1,169 @@
+{% extends 'baseuser.html' %}
+{% load static %}
+
+{% block content %}
+
+
+
+
+<style>
+    .topper {
+        margin-top: 50px;
+    }
+</style>
+<main class="main">
+    <div class="page-header breadcrumb-wrapers">
+        <div class="container">
+            <!-- Breadcrumb or any other header content goes here -->
+        </div>
+    </div>
+
+    <section class="content-main">
+        <div class="container">
+            <div class="content-header">
+                <h2 class="content-title card-title topper">Order Detail</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="order-items">
+                        <div class="order-item">
+                            <br>
+                            <img src="{% if order_item.product.images.all %}{{ order_item.product.images.first.image.url }}{% else %}{% static 'path/to/default/image.jpg' %}{% endif %}" alt="Product Image" class="img-thumbnail" width="25%" height="25%">
+                            <p><strong>Order ID:</strong> {{ order.id }}</p>
+                            <p><strong>Order_item ID:</strong> {{ order_item.id }}</p>
+                            <p><strong>Address:</strong> {{ order.address.first_name }}{{ order.address.last_name }}</p>
+                            <p>{{ order.address.address }}</p>
+                            <p>{{ order.address.email_address }}</p>
+                            <p>{{ order.address.phone_number }}</p>
+                            <p><strong>Product:</strong> {{ order_item.product.name }}</p>
+                            <p><strong>Variant:</strong> {{ order_item.variant.size }}, {{ order_item.variant.color }}</p>
+                            <p><strong>Quantity:</strong> {{ order_item.quantity }}</p>
+                            <p><strong>Payment Method:</strong> {{ order.payment_option}}</p>
+                            {% if order.coupon_info is not None %}
+                                <p><strong>Coupon Info:</strong> {{ order.coupon_info }}</p>
+                                <p><strong>Coupon Discount:</strong> {{ order.discount }}</p>
+                            {% else %}    
+                                <p><strong>Coupon Info:</strong> No Coupon applied</p>
+                            {% endif %}   
+                            <p><strong>total amount:</strong> ₹{{ order_item.subtotal }}</p>
+                            <p><strong>Is Paid:</strong> {% if order_item.is_paid %}Yes{% else %}No{% endif %}</p>
+                            <p><strong>Status:</strong> {{ order_item.status }}</p>
+                            <p><strong>Ordered Time:</strong> {{ order_item.created_at }}</p>
+                            <br>
+                            {% if not order_item.is_cancelled and order_item.status != 'Delivered' %}
+                                <form method="post" action="{% url 'cancel_order_item' order_item_id=order_item.id %}" id="cancelForm">
+                                    {% csrf_token %}
+                                    <label for="cancellation_reason">Cancellation Reason:</label>
+                                    <textarea name="cancellation_reason" id="cancellation_reason" rows="4" cols="50"></textarea>
+                                    <button type="button" class="btn btn-danger" onclick="confirmCancellation()">Cancel Item</button>
+                                </form>
+                            {% elif order_item.status == 'Cancelled' %}
+                                <p style="color: red;"><strong>Order is Cancelled</strong></p>
+                            {% endif %}
+                            <br>
+                            {% if order.status == 'Delivered' %}
+                                <p><strong>Invoice:</strong> <a href="{% url 'invoice' order_item_id=order_item.id %}">View Invoice</a></p>
+                            {% endif %}
+                            <br>
+                            {% if order_item.status == 'Delivered' %}
+                                <form method="post" action="{% url 'return_order_item' order_item_id=order_item.id %}" id="returnForm">
+                                    {% csrf_token %}
+                                    <label for="return_reason">Return Reason:</label>
+                                    <textarea name="return_reason" id="return_reason" rows="4" cols="50"></textarea>
+                                    <button type="button" class="btn btn-primary" onclick="confirmReturn()">Return Item</button>
+                                </form>
+                            {% elif order_item.status == 'Return requested' %}
+                                <p><strong>Return requested</strong></p>
+                            {% endif %}
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Bootstrap Modal for Return -->
+<div class="modal fade" id="returnConfirmationModal" tabindex="-1" aria-labelledby="returnConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnConfirmationModalLabel">Confirm Return</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to return this item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitReturn()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmCancellation() {
+        var reason = document.getElementById("cancellation_reason").value;
+        if (reason.trim() !== '') {
+            // Directly confirm the cancellation
+            submitCancellation();
+        } else {
+            alert("Please provide a reason for cancellation.");
+        }
+    }
+
+    function submitCancellation() {
+        // Instead of AJAX, perform the cancellation logic here
+        var form = document.getElementById("cancelForm");
+        var formData = new FormData(form);
+
+        // Simplified cancellation logic
+        if (confirm("Are you sure you want to cancel this item?")) {
+            form.submit();
+        } else {
+            alert('Cancellation canceled.');
+        }
+    }
+
+    function confirmReturn() {
+        // Show the Bootstrap modal for return
+        var returnConfirmationModal = new bootstrap.Modal(document.getElementById('returnConfirmationModal'));
+        returnConfirmationModal.show();
+    }
+
+    function submitReturn() {
+        // Submit the form using AJAX for return
+        var form = document.getElementById("returnForm");
+        var formData = new FormData(form);
+
+        $.ajax({
+            type: form.method,
+            url: form.action,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.status === 'success') {
+                    alert('Item returned successfully!');
+                    // You may want to update the UI here as needed
+                    window.location.reload(); // Reload the page for simplicity
+                } else {
+                    alert('Failed to return item. Please try again.');
+                }
+            },
+            error: function () {
+                alert('An error occurred. Please try again.');
+            }
+        });
+
+        // Close the Bootstrap modal for return
+        var returnConfirmationModal = new bootstrap.Modal(document.getElementById('returnConfirmationModal'));
+        returnConfirmationModal.hide();
+    }
+</script>
+
+
+
+{% endblock %}

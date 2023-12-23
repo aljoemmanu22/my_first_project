@@ -1,0 +1,259 @@
+{% extends 'baseuser.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .coupon-box {
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        width: 454px;
+    }
+
+    .coupon-box a {
+        color: #1ccca3;
+        text-decoration: none;
+    }
+
+</style>
+<main class="main">
+    <section class="mt-50 mb-50">
+        <div class="container">
+            {% if discount is none %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="toggle_info">
+                            <span><i class="fi-rs-label mr-10"></i><span class="text-muted">Have a coupon?</span> <a href="#coupon" data-bs-toggle="collapse" class="collapsed" aria-expanded="false">Click here to enter your code</a></span>
+                        </div>
+                        <div class="panel-collapse collapse coupon_form " id="coupon">
+                            <div class="panel-body">
+                                <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                                <form method="post" action="{% url 'apply_coupon' %}" id="applyCouponForm">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input type="text" placeholder="Enter Coupon Code..." name="coupon_code" id="couponCodeInput">
+                                    </div>
+                                    <div class="form-group">
+                                        <p><input type="hidden" name="total" class="form-control" value="{{ total }}"></p>
+                                        <button type="submit" class="btn btn-md" name="coupon">Apply Coupon</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}    
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="coupon-box">
+                        <p>Do you want to remove the applied coupon ? <a href="{% url 'remove_coupon' %}"> Remove Coupon</a></p>
+                    </div>
+                </div>
+            </div>       
+            {% endif %}   
+            <div class="row">
+                <div class="col-12">
+                    <div class="divider mt-50 mb-50"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="order_review">
+                        <div class="mb-20">
+                            <h4>Your Orders</h4>
+                        </div>
+                    
+                        <div class="table-responsive order_table text-center">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Product</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>                               
+                                <tbody>
+                                    {% if cart_items %}
+                                    {% for item in cart_items %}
+                                        <tr>
+                                            {% if item.product.images.all %}
+                                                <td class="image product-thumbnail"><img src="{{ item.product.images.first.image.url }}" alt="#"></td>
+                                            {% endif %}
+                                            <td>
+                                                <h5><a href="shop-product-full.html">{{ item.product.name }}</a></h5> <span class="product-qty">x {{ item.quantity }}</span>
+                                            </td>
+                                            <td>{{ item.subtotal }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                        {% if discount is not none %}
+                                            <tr>
+                                                <th>Coupon Discount</th>
+                                                <td class="product-subtotal" colspan="2">-{{ discount }}</td>
+                                            </tr>
+                                        {% endif %}    
+                                        <tr>
+                                            <th>SubTotal</th>
+                                            <td class="product-subtotal" colspan="2">{{ total }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Shipping</th>
+                                            <td colspan="2"><em>Free Shipping</em></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Total</th>
+                                            <td colspan="2" class="product-subtotal"><span class="font-xl text-brand fw-900">{{ total }}</span></td>
+                                        </tr>
+                                    {% endif %}         
+                                </tbody>                                   
+                            </table>
+                        </div>
+                        
+                        <form method="post" action="{% url 'confirm_order' %}" id="orderForm">
+                            {% csrf_token %}
+                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                            <div class="payment_method">
+                                <div class="mb-25">
+                                    <h5>Payment</h5>
+                                </div>
+                                <div class="payment_option">
+                                    <div class="custome-radio">
+                                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" value="Razor Pay" checked="">
+                                        <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#cardPayment" aria-controls="bankTranfer">Razor Pay</label>
+                                    </div>
+                                    <!-- <div class="custome-radio">
+                                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios4" value="wallet_payment">
+                                        <label class="form-check-label" for="exampleRadios4" data-bs-toggle="collapse" data-target="#wallet_payment" aria-controls="checkPayment">Wallet Payment</label>
+                                    </div> -->
+                                    <div class="custome-radio">
+                                        <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" value="cash_on_delivery">
+                                        <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Cash on delivery</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-25" hidden>
+                                <h4>Billing Details</h4>
+                            </div>
+                            {% if addresses %}
+                                {% for address in addresses %}
+                                    <div class="col-lg-6" hidden>
+                                        <div class="toggle_info" style="width: 574px; margin-bottom: 14px;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    {{ address.first_name }} {{ address.last_name }}
+                                                </div>
+                                                <div>
+                                                    <input class="form-check-input yo-boys" type="radio" name="selected_address" value="{{ address.id }}" id="differentaddress{{ address.id }}"
+                                                    {% if forloop.first %} checked {% endif %}>
+                                                </div>
+                                            </div>
+                                            
+                                            <div>{{ address.address }}</div>
+                                            <div>{{ address.phone_number }}</div>
+                                            <div>{{ address.email_address }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <p><input type="hidden" name="total" class="form-control" value="{{ total }}"></p>
+                            <p><input type="hidden" name="discount" class="form-control" value="{{ discount }}"></p>
+                            <button type="submit" class="btn btn-fill-out btn-block mt-30">Place Order</button>
+                        </form>     
+                    </div>       
+                </div>
+            
+                <div class="col-md-6">
+                    <div class="order_review">
+                        <div class="mb-25">
+                            <h4>Billing Details</h4>
+                        </div>
+                        {% if addresses %}
+                            {% for address in addresses %}
+                                <div class="col-lg-6">
+                                    <div class="toggle_info" style="width: 574px; margin-bottom: 14px;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                {{ address.first_name }} {{ address.last_name }}
+                                            </div>
+                                            <div>
+                                                <input class="form-check-input yo-boys" type="radio" name="selected_address" value="{{ address.id }}" id="differentaddress{{ address.id }}"
+                                                {% if forloop.first %} checked {% endif %}>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>{{ address.address }}</div>
+                                        <div>{{ address.phone_number }}</div>
+                                        <div>{{ address.email_address }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <form method="post" action="{% url 'address-list' %}">
+                            {% csrf_token %}
+                            <div class="ship_detail">
+                                <div class="form-group">
+                                    <div class="chek-form">
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="address_checkbox" id="differentaddressForm">
+                                            <label class="form-check-label label_info" data-bs-toggle="collapse" data-target="#collapseAddress" href="#collapseAddress" aria-controls="collapseAddress" for="differentaddressForm"><span>Ship to a different address?</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="collapseAddress" class="different_address collapse in">
+                                    <div class="form-group">
+                                        <input type="text" required="" name="firstname" placeholder="First name *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" required="" name="lastname" placeholder="Last name *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" name="companyname" placeholder="Company Name">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="email" name="email_address" required="" placeholder="email_address *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" name="billing_address" required="" placeholder="Address line1 *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" name="billing_address2" placeholder="Address line2">
+                                    </div>
+                                    <div class="form-group">
+                                        <input required="" type="text" name="city" required="" placeholder="City / Town *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input required="" type="text" name="state" required="" placeholder="State *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input required="" type="text" name="country" placeholder="country *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input required="" type="text" name="postal_code" required="" placeholder="Postal Code *">
+                                    </div>
+                                    <div class="form-group">
+                                        <input required="" type="text" name="phone_number" required="" placeholder="phone_number *">
+                                    </div>
+                                    <input type="hidden" name="action" value="create">
+                                    <button class="btn btn-fill-out btn-block mt-30" type="submit">Add Address</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>    
+                </div>
+            </div>
+            
+        </div>
+    </section>
+</main>
+<script>
+    document.getElementById('orderForm').addEventListener('submit', function (event) {
+        var selectedAddress = document.querySelector('input[name="selected_address"]:checked');
+
+        if (!selectedAddress) {
+            alert('Please select an address before placing the order.');
+            event.preventDefault(); // Prevent form submission if validation fails
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+
+{% load static %}
+        
+        
+{% block content %}
+    <section class="content-main">
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Product</h2>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                <form method="POST" action="{% url 'create_product' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="product_title" class="form-label">Product title</label>
+                                <input type="text" name="name" placeholder="Type here" class="form-control" id="product_title">
+                            </div>
+                            <div class="row gx-3">
+                                <div class="col-md-4 mb-3" id="variants_field">
+                                    <div class="mb-3">
+                                        <label for="variants" class="form-label">Variants</label>
+                                        <div id="variant_inputs">
+                                            <div class="variant-input">
+                                                <input type="text" name="size" placeholder="Size" class="form-control mb-2">
+                                                <input type="text" name="color" placeholder="Color" class="form-control mb-2">
+                                                <input type="number" name="stock" placeholder="Stock" class="form-control mb-2">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary" id="add_variant">Add Variant</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product_brand" class="form-label">Brand</label>
+                                <select name="brand" class="form-control" id="product_brand">
+                                    <option value="" disabled selected>Select a brand</option>
+                                    {% for brand in brands %}
+                                        <option value="{{ brand.id }}">{{ brand.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea name="description" placeholder="Type here" class="form-control" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div>
+                                <label class="form-label">Images</label>
+                                <input type="file" name="image1" class="form-control mb-2" accept="image/*">
+                                <input type="file" name="image2" class="form-control mb-2" accept="image/*">
+                                <input type="file" name="image3" class="form-control mb-2" accept="image/*">
+                                <input type="file" name="image4" class="form-control mb-2" accept="image/*">
+                                <input type="file" name="image5" class="form-control mb-2" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label class="form-label">Price</label>
+                                <input type="text" name="price" placeholder="Type here" class="form-control">
+                            </div>
+                            <hr>
+                            <div class="mb-4">
+                                <label for="categories" class="form-label">Categories</label>
+                                <select class="form-control" name="categories" id="categories" multiple size="{{ categories|length }}">
+                                    <option value="" disabled selected>Select categories</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Product</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Add variant input fields dynamically
+        document.getElementById('add_variant').addEventListener('click', function () {
+            var variantInputs = document.getElementById('variant_inputs');
+            var variantInput = document.querySelector('.variant-input').cloneNode(true);
+            variantInputs.appendChild(variantInput);
+        });
+    </script>
+{% endblock %}

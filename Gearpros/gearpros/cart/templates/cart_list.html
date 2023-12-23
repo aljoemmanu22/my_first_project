@@ -1,0 +1,204 @@
+{% extends 'baseuser.html' %}
+{% load static %}
+
+{% block content %}
+<main class="main">
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center clean">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Subtotal</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if cart_items %}
+                                    {% for item in cart_items %}
+                                    <tr>
+                                        <td>
+                                            {% if item.product.images.all %}
+                                                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="image product-thumbnail">
+                                            {% endif %}
+                                        </td>
+                                        <td class="product-des product-name">
+                                            <h5 class="product-name"><a href="shop-product-right.html">{{ item.product.name }} ({{ item.variant.size }})</a></h5>
+                                        </td>
+                                        <td class="price" data-title="Price"><span> ₹{{ item.product.price }}</span></td>
+                                        <form method="post" action="{% url 'cart_list' %}">
+                                            {% csrf_token %}
+                                            <td class="text-center" data-title="Stock">
+                                                <div class="radius m-auto">
+                                                    <button type="button" class="qty-btn qty-down"><i class="fi-rs-minus"></i></button>
+                                                    <input style="width: 54px;" type="number" class="qty-val" value="{{ item.quantity }}" min="1" max="{{ item.variant.stock }}" data-cart-item-id="{{ item.id }}">
+                                                    <button type="button" class="qty-btn qty-up"><i class="fi-rs-plus"></i></button>
+                                                </div>
+                                            </td>                                            
+                                        </form>
+                                        
+                                        <td class="text-right" data-title="Cart">
+                                            <span id="subtotal_{{ item.id }}"> ₹{{ item.subtotal }}</span>
+                                        </td>
+                                        <td class="action" data-title="Remove">
+                                            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-link text-muted"><i class="fi-rs-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <p>Your cart is empty.</p>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="cart-action text-end">
+                        <a href="#" class="btn  mr-10 mb-sm-15"><i class="fi-rs-shuffle mr-10"></i>Update Cart</a>
+                        <a href="#" class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                    </div>
+                    <div class="divider center_icon mt-50 mb-50"><i class="fi-rs-fingerprint"></i></div>
+
+                    <div class="row mb-50">
+                        <div class="col-lg-6 col-md-12">
+                            <div class="border p-md-4 p-30 border-radius cart-totals">
+                                <div class="heading_s1 mb-3">
+                                    <h4>Cart Totals</h4>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="cart_total_label">Cart Subtotal</td>
+                                                <td class="cart_total_amount_total"><span class="font-lg fw-900 text-brand"> ₹{{ total }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="cart_total_label">Shipping</td>
+                                                <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free Shipping</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="cart_total_label">Total</td>
+                                                <td class="cart_total_amount_total"><strong><span class="font-xl fw-900 text-brand">${{ total }}</span></strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <a href="{% url 'checkout' %}" class="btn "> <i class="fi-rs-box-alt mr-10"></i> Proceed To Checkout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Global AJAX setup to include CSRF token
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                }
+            }
+        });
+
+        // Function to update quantity via AJAX
+        function updateQuantity(cartItemId, quantity) {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cart_list" %}',
+                data: {
+                    'cart_item_id': cartItemId,
+                    'quantity': quantity,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Update total and subtotal amounts on success
+                        updateCartTotals();
+                    }
+                },
+            });
+        }
+        // Function to update total and subtotal amounts
+        function updateCartTotals() {
+            $.ajax({
+                type: 'GET',
+                url: '{% url "cart_totals" %}',
+                success: function (response) {
+                    // Update total amount
+                    $('.cart_total_amount_total').html(response.cart_total).css({
+                        'font-size': '17px',
+                        'font-weight': '900',
+                        'color': '#088178',
+                    });;
+
+                    // Update individual subtotals
+                    $.each(response.cart_items, function (itemId, subtotal) {
+                        $('#subtotal_' + itemId).html(' ₹' + subtotal);
+                    });
+                },
+            });
+        }
+
+
+        // Event handler for quantity increase
+        $('.qty-up').on('click', function () {
+            var input = $(this).siblings('.qty-val');
+            var cartItemId = input.data('cart-item-id');
+            var quantity = parseInt(input.val()) + 1;
+
+            if (quantity <= parseInt(input.attr('max'))) {
+                input.val(quantity);
+                updateQuantity(cartItemId, quantity);
+            } else {
+                // Indicate the user when the quantity reaches the maximum stock
+                alert('Quantity cannot exceed the maximum stock.');
+            }
+        });
+
+        // Event handler for quantity decrease
+        $('.qty-down').on('click', function () {
+            var input = $(this).siblings('.qty-val');
+            var cartItemId = input.data('cart-item-id');
+            var quantity = parseInt(input.val()) - 1;
+
+            if (quantity >= parseInt(input.attr('min'))) {
+                input.val(quantity);
+                updateQuantity(cartItemId, quantity);
+            } else {
+                // Indicate the user when the quantity reaches the minimum limit
+                alert('Quantity cannot be less than the minimum limit.');
+            }
+        });
+
+        // Event handler for direct input change
+        $('.qty-val').on('input', function () {
+            var input = $(this);
+            var cartItemId = input.data('cart-item-id');
+            var quantity = parseInt(input.val());
+
+            if (!isNaN(quantity) && quantity >= parseInt(input.attr('min')) && quantity <= parseInt(input.attr('max'))) {
+                updateQuantity(cartItemId, quantity);
+            } else {
+                // Indicate the user when the quantity is out of range
+                alert('Quantity should be within the allowed range.');
+            }
+        });
+    });
+</script>
+{% endblock %}

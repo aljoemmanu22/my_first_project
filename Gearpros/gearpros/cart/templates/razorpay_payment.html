@@ -1,0 +1,46 @@
+{% extends 'baseuser.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Complete Your Payment</h2>
+    
+    <!-- Razorpay Checkout Form -->
+    <form id="razorpay-form" method="POST" action="{% url 'razorpay_payment_success' %}">
+      {% csrf_token %}
+      <input type="hidden" name="order_id" value="{{ order_id }}">
+      <input type="hidden" name="receipt" value="{{ order_receipt }}">
+      <input type="hidden" name="amount" value="{{ total * 100 }}">
+      <input type="hidden" name="currency" value="INR">
+      <input type="hidden" name="name" value="Your Company Name">
+      <input type="hidden" name="description" value="Payment for Order #{{ order_receipt }}">
+      <!-- Add other necessary input fields -->
+      <!-- ... -->
+
+      <!-- Razorpay Checkout button -->
+      <button type="button" class="btn btn-primary" onclick="submitRazorpayForm()">Pay Now</button>
+    </form>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      var options = {
+        key: '{{ settings.RAZORPAY_API_KEY }}', // Replace with your Razorpay public key from Django settings
+        amount: '{{ total * 100 }}', // Amount in paise
+        currency: 'INR',
+        name: 'Gearpro',
+        description: 'Payment for Order #{{ order_receipt }}',
+        order_id: '{{ order_id }}',
+        handler: function (response) {
+          // Handle the success callback
+          // You may want to submit the form to your server for further processing
+          document.getElementById('razorpay-form').submit();
+        },
+      };
+
+      var rzp = new Razorpay(options);
+
+      function submitRazorpayForm() {
+        rzp.open();
+      }
+    </script>
+  </div>
+{% endblock %}

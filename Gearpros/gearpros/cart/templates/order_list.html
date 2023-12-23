@@ -1,0 +1,63 @@
+{% extends 'baseuser.html' %}
+{% load static %}
+
+{% block content %}
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<div class="order_review">
+    <div class="mb-20">
+        <h4>Your Orders</h4>
+    </div>
+    <div class="table-responsive order_table text-center">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="40%">Product</th>
+                                <th width="20%">Unit Price</th>
+                                <th width="20%">Quantity</th>
+                                <th width="20%">Coupon Discount</th> 
+                                <th width="20%" class="text-end">Total</th>
+                                <th width="20%" class="text-end">Status</th>                           
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order_item in order_items %}
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="{% url 'product_order_detail' order_item_id=order_item.id %}">
+                                            <div class="left">
+                                                {% if order_item.product.images.all %}
+                                                    <img width="40" height="40" class="img-xs" src="{{ order_item.product.images.first.image.url }}" alt="Item">
+                                                {% else %}
+                                                    <img width="40" height="40" class="img-xs" alt="Item">
+                                                {% endif %}
+                                            </div>
+                                            <div class="info">{{ order_item.product.name }}</div>
+                                        </a>
+                                    </td>
+                                    <td>{{ order_item.product.price }}</td>
+                                    <td>{{ order_item.quantity }}</td>
+                                    <td>{{ order_item.order.discount }}</td>
+                                    <td class="text-end">{{ order_item.subtotal }}</td>
+                                    <td>{{ order_item.status }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
