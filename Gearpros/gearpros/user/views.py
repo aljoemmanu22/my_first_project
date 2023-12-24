@@ -89,14 +89,16 @@ def home(request):
 #     if 'username' in request.session :
 #         return redirect('/')
 #     if request.method == 'POST':
-#         username=request.POST.get('username')
-#         password=request.POST.get('password')
-
-#         user=authenticate(username=username,password=password)
+#         email = request.POST.get('email')  
+#         password = request.POST.get('password')
+     
+#         user = authenticate(request, username=email, password=password)
 #         if user is not None and not user.is_superuser:
-#             login(request, user)
+#             print(f"User '{user.username}' logged in successfully.")
 #             request.session['username'] = user.username
-#             return redirect('home')
+#             request.session['email'] = user.email
+#             login(request, user)
+#             return redirect('/')
 #         else:
 #             messages.error(request, 'Invalid credentials')
 #             return redirect('login')
@@ -105,14 +107,21 @@ def home(request):
 
 @never_cache
 def Login(request):
-    if 'username' in request.session :
+    if 'username' in request.session:
         return redirect('/')
+
     if request.method == 'POST':
-        email = request.POST.get('email')  
+        email = request.POST.get('email')
         password = request.POST.get('password')
-     
+
         user = authenticate(request, username=email, password=password)
         if user is not None and not user.is_superuser:
+            user_profile = Userprofile.objects.get(user=user)
+
+            if user_profile.blocked:
+                messages.error(request, 'Your account is blocked. Contact support for assistance.')
+                return redirect('login')
+
             print(f"User '{user.username}' logged in successfully.")
             request.session['username'] = user.username
             request.session['email'] = user.email
@@ -121,8 +130,8 @@ def Login(request):
         else:
             messages.error(request, 'Invalid credentials')
             return redirect('login')
-    return render(request,"login.html")
 
+    return render(request, "login.html")
 
 
 
