@@ -89,18 +89,23 @@
                                             {% endif %}
                                             <div class="form-group">
                                                 <input type="text" id="username" name="username" required placeholder="Username">
+                                                <span class="error-message" id="username-error"></span>
                                             </div>
                                             <div class="form-group">
                                                 <input type="email" id="email" name="email" required placeholder="email">
+                                                <span class="error-message" id="email-error"></span>
                                             </div>
                                             <div class="form-group">
                                                 <input type="text" id="phone_number" name="phone_number" required placeholder="phone_number">
+                                                <span class="error-message" id="phone_number-error"></span>
                                             </div>
                                             <div class="form-group">
                                                 <input type="password" id="password" name="password" required placeholder="password">
+                                                <span class="error-message" id="password-error"></span>
                                             </div>
                                             <div class="form-group">
                                                 <input type="password" id="confirm_password" name="confirm_password" required placeholder="confirm_password">
+                                                <span class="error-message" id="confirm_password-error"></span>
                                             </div>
                                             <br>
                                             <div class="form-group">
@@ -279,5 +284,83 @@
     <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
     <!-- Template  JS -->
     <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function() {
+        function updateErrorMessage(field, message) {
+            $('#' + field + '-error').text(message);
+        }
+    
+        function clearErrorMessages() {
+            $('.error-message').text('');
+        }
+    
+        function validateEmail(email) {
+            return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+        }
+    
+        function validatePhoneNumber(phoneNumber) {
+            return /^\+?91?\d{10}$/.test(phoneNumber);
+        }
+    
+        function validatePasswordLength(password) {
+            return password.length >= 8;
+        }
+
+        function validatePasswordNoSpaces(password) {
+            return !/\s/.test(password);
+        }
+    
+        $('form').submit(function(event) {
+            clearErrorMessages();
+    
+            var username = $('#username').val();
+            var email = $('#email').val();
+            var phone_number = $('#phone_number').val();
+            var password = $('#password').val();
+            var confirm_password = $('#confirm_password').val();
+    
+            if (!/^\w+$/.test(username)) {
+                updateErrorMessage('username', 'Invalid username');
+                event.preventDefault();
+                return;
+            }
+    
+            if (!validateEmail(email)) {
+                updateErrorMessage('email', 'Invalid email');
+                event.preventDefault();
+                return;
+            }
+    
+            if (!validatePhoneNumber(phone_number)) {
+                updateErrorMessage('phone_number', 'Invalid phone number');
+                event.preventDefault();
+                return;
+            }
+    
+            if (!validatePasswordLength(password)) {
+                updateErrorMessage('password', 'Password must be at least 8 characters');
+                event.preventDefault();
+                return;
+            }
+
+            if (!validatePasswordNoSpaces(password)) {
+                updateErrorMessage('password', 'Password cannot contain spaces');
+                event.preventDefault();
+                return;
+            }
+
+            if (password !== confirm_password) {
+                updateErrorMessage('confirm_password', 'Passwords do not match');
+                event.preventDefault();
+                return;
+            }
+        });
+    
+        $('#username, #email, #phone_number, #password, #confirm_password').on('input', function() {
+            clearErrorMessages();
+        });
+    });
+    </script>
 </body>
 </html>
