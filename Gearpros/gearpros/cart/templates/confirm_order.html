@@ -84,12 +84,21 @@
                                 <p><input type="hidden" name="discount" class="form-control" value="{{ discount }}"></p>
                                 <input type="hidden" name="action" value="place_order">
                                 <button type="submit" class="btn btn-fill-out btn-block mt-30">Place Order</button>
-                            {% else %}
+                            {% elif payment_option == 'Razor Pay' %}
                                 <p><input type="hidden" name="total" class="form-control" value="{{ total }}"></p>
                                 <p><input type="hidden" name="discount" class="form-control" value="{{ discount }}"></p> 
-                                <button id="rzp-button1">Pay with Razorpay</button>
+                                <button id="rzp-button1">Pay with Razorpay</button>    
                             {% endif %}   
                         </div>
+                    </form>
+                    <form method="post" action="{% url 'wallet_payment' %}">
+                        {% if payment_option == 'wallet_payment' %}
+                        {% csrf_token %}
+                            <p><input type="hidden" name="total" class="form-control" value="{{ total }}"></p>
+                            <p><input type="hidden" name="discount" class="form-control" value="{{ discount }}"></p>
+                            <input type="hidden" name="action" value="wallet_payment">
+                            <button type="submit" class="btn btn-fill-out btn-block mt-30">Pay by wallet</button>
+                        {% endif %}        
                     </form>
                 </div>
             </div>

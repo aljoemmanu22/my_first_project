@@ -21,7 +21,8 @@ from admin_part.models import Coupons
 from django.http import JsonResponse
 from decimal import Decimal
 from django.views.decorators.cache import never_cache
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 @never_cache
 @login_required
@@ -532,17 +533,30 @@ def update_order_status(request):
 def wallet_payment(request):
     cart = Cart.objects.get(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
+    cart_items_count = int(cart_items.count())
+    discount = 0 
+    discounts = 0
     if 'coupon_discount' in request.session:
         total_amount = int(request.session.get('total'))
+        discounts = int(request.session.get('coupon_discount'))
         print('if coupon discounted')
         request.session.pop('total', None)
     else:
         total_amount = sum(item.product.price * item.quantity for item in cart_items)
     print(type(total_amount))       
     print(total_amount)
+    payment_option = request.session.get('payment_option')
+    payment_option = request.session.pop('payment_option', None)
     selected_address_id = request.session.get('selected_address_id')
     selected_address = Address.objects.get(id=selected_address_id)
     selected_address_id = request.session.pop('selected_address_id', None)
+    discount = Decimal(discounts) / Decimal(cart_items_count)
+    created_at = datetime.now()
+    
+    tax_rate = Decimal('18.00') / Decimal('100.00')  # Represent 18% as a Decimal
+    
+
+    tax = Decimal(total_amount) * tax_rate
     current_user = request.user
     try:
         wallet = Wallet.objects.get(user=current_user)
@@ -551,7 +565,7 @@ def wallet_payment(request):
     wallet_amount = wallet.amount
     
     if wallet_amount > total_amount:
-        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address)
+        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address, discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
         new_order.is_paid = True    
 
         with transaction.atomic():
@@ -563,6 +577,8 @@ def wallet_payment(request):
 
                 item.variant.stock -= item.quantity
                 item.variant.save()
+                wallet.amount -= total_amount  # Subtract the total_amount from the wallet's amount
+                wallet.save()
 
             cart_items.delete()
     else:
@@ -579,7 +595,11 @@ def wallet_payment(request):
             pass
         
     messages.success(request, 'Your order has been placed successfully!')
-    return redirect('order_list')
+    response = HttpResponseRedirect(reverse('order_list'))
+    response['Cache-Control'] = 'no-store'
+
+    return response
+
 
 
 

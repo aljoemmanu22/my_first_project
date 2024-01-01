@@ -68,7 +68,7 @@
                             <div class="text">
                                 <h6 class="mb-1">Order info</h6>
                                 <p class="mb-1">
-                                    Shipping: Fargo express <br> Payment: {% if order.is_paid %} card {% else %} COD {% endif %}<br> Status: {{ order.status }}
+                                    Shipping: Fargo express <br> Payment: {{ order.payment_option }}<br> Status: {{ order.status }}
                                 </p>
                             </div>
                         </article>
