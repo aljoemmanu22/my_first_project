@@ -564,7 +564,7 @@ def wallet_payment(request):
         wallet = Wallet.objects.create(user=current_user, amount=0)
     wallet_amount = wallet.amount
     
-    if wallet_amount > total_amount:
+    if wallet_amount >= total_amount:
         new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address, discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
         new_order.is_paid = True    
 

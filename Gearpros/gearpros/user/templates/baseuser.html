@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Evara - eCommerce HTML Template</title>
+    <title>GearPross Ecomerce</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,7 @@
     <meta property="og:type" content="">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/imgs/theme/favicon.svg' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/imgs/theme/logo.png' %}">
     <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
     <style>
         .card{
@@ -89,7 +89,7 @@
                                 <div class="header-action-icon-2">
                                     <a href="{% url 'view_wishlist' %}">
                                         <img class="svgInject" alt="Evara" src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}">
-                                        <span class="pro-count blue">4</span>
+                                        <span class="pro-count blue">{{ wishlist_count }}</span>
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
@@ -110,7 +110,7 @@
             <div class="container">
                 <div class="header-wrap header-space-between position-relative">
                     <div class="logo logo-width-1 d-block d-lg-none">
-                        <a href="index.html"><img src="{% static 'assets/imgs/theme/logo.png' %}" alt="logo"></a>
+                        <a href="{% url 'home' %}"><img src="{% static 'assets/imgs/theme/logo.png' %}" alt="logo"></a>
                     </div>
                     <div class="header-nav d-none d-lg-flex">
                         <div class="main-categori-wrap d-none d-lg-block">
@@ -322,20 +322,6 @@
         </div>
     </footer>
     <!-- Preloader Start -->
-    <div id="preloader-active">
-        <div class="preloader d-flex align-items-center justify-content-center">
-            <div class="preloader-inner position-relative">
-                <div class="text-center">
-                    <h5 class="mb-5">Now Loading</h5>
-                    <div class="loader">
-                        <div class="bar bar1"></div>
-                        <div class="bar bar2"></div>
-                        <div class="bar bar3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Vendor JS-->
     <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>

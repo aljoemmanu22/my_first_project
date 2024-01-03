@@ -39,14 +39,14 @@ def home(request):
         try:
             cart = Cart.objects.get(user=request.user)
             cart_items = cart.items.all()
-            cart_item_count = cart_items.count()
+            cart_item_count = cart.items.count()
+            wishlist = Wishlist.objects.get(user=request.user)
+            count = wishlist.products.count()
         except Cart.DoesNotExist:
             cart_items = []
             cart_item_count = 0
     else:
-        cart_items = []
-        cart_item_count = 0
-
+        cart_items = []       
     selected_category_id = request.GET.get('category_id')
     if selected_category_id:
         selected_category = get_object_or_404(Category, id=selected_category_id)
@@ -80,7 +80,7 @@ def home(request):
             
     categories = Category.objects.all()     
 
-    context = {'products': product_data, 'username': request.session.get('username'), 'brands': brands, 'cart_item_count': cart_item_count, 'categories': categories,}
+    context = {'products': product_data, 'username': request.session.get('username'), 'brands': brands, 'cart_item_count': cart_item_count, 'categories': categories, 'wishlist_count':count, 'cart_item_count':cart_item_count}
     return render(request, 'index.html', context)
 
 
@@ -462,10 +462,12 @@ def product_detail(request, product_id):
     return render(request, 'product_detail.html', context)
 
 
+from django.utils.decorators import method_decorator
 
 class MyAccountView(LoginRequiredMixin, View):
     template_name = 'myaccount.html'
-
+    
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
 
         #Get user data
