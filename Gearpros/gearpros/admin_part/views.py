@@ -17,7 +17,7 @@ from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
-from cart.models import Order, OrderItem
+from cart.models import Order, OrderItem, OrderAddress
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
@@ -580,6 +580,7 @@ def order_detail(request, order_id):
     if request.user.is_anonymous and not request.user.is_superuser:
         return redirect('admin_login')
     order = get_object_or_404(Order, id=order_id)
+    orderaddress = get_object_or_404(OrderAddress, order=order)
     userprofile = Userprofile.objects.get(user=order.user)
     order.phone_number = userprofile.phone_number
     order_items = OrderItem.objects.filter(order=order)
@@ -589,7 +590,8 @@ def order_detail(request, order_id):
         print(order_item.subtotal)    
     context = {
         'order': order,
-        'order_items': order_items
+        'order_items': order_items,
+        'orderaddress':orderaddress
     }
 
     return render(request, 'order_detail.html', context)

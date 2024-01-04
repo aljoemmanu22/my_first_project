@@ -31,10 +31,10 @@
                             <img src="{% if order_item.product.images.all %}{{ order_item.product.images.first.image.url }}{% else %}{% static 'path/to/default/image.jpg' %}{% endif %}" alt="Product Image" class="img-thumbnail" width="25%" height="25%">
                             <p><strong>Order ID:</strong> {{ order.id }}</p>
                             <p><strong>Order_item ID:</strong> {{ order_item.id }}</p>
-                            <p><strong>Address:</strong> {{ order.address.first_name }}{{ order.address.last_name }}</p>
-                            <p>{{ order.address.address }}</p>
-                            <p>{{ order.address.email_address }}</p>
-                            <p>{{ order.address.phone_number }}</p>
+                            <p><strong>Address:</strong> {{ orderaddress.first_name }} {{ orderaddress.last_name }}</p>
+                            <p>{{ orderaddress.address }}</p>
+                            <p>{{ orderaddress.email_address }}</p>
+                            <p>{{ orderaddress.phone_number }}</p>
                             <p><strong>Product:</strong> {{ order_item.product.name }}</p>
                             <p><strong>Variant:</strong> {{ order_item.variant.size }}, {{ order_item.variant.color }}</p>
                             <p><strong>Quantity:</strong> {{ order_item.quantity }}</p>

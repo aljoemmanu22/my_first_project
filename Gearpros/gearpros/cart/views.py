@@ -2,7 +2,7 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import Product, Variant, Cart, CartItem, Address, Order, OrderItem, CancellationReason, ReturnRequest
+from .models import Product, Variant, Cart, CartItem, Address, Order, OrderItem, CancellationReason, ReturnRequest, OrderAddress
 from admin_part.models import UserCoupons
 from user.models import Wallet
 from django.views.decorators.http import require_POST
@@ -23,6 +23,7 @@ from decimal import Decimal
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 
 @never_cache
 @login_required
@@ -347,7 +348,8 @@ class OrderView(LoginRequiredMixin, View):
         elif action == 'cancel_order':
             return self.cancel_order(request)
     
-    @never_cache
+
+    @method_decorator(never_cache)
     def place_order(self, request):
         print('Place Order method is executed.')
 
@@ -376,7 +378,7 @@ class OrderView(LoginRequiredMixin, View):
 
         tax = Decimal(total_amount) * tax_rate
 
-        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address, created_at=created_at, discount=discount, tax = tax, payment_option = payment_option)
+        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', created_at=created_at, discount=discount, tax=tax, payment_option=payment_option)
         print(new_order)
         razorpay_order = None  # Initialize razorpay_order to None
 
@@ -396,6 +398,7 @@ class OrderView(LoginRequiredMixin, View):
             new_order.is_paid = True
         new_order.is_ordered = True
 
+        # Save the order before creating the associated OrderAddress
         with transaction.atomic():
             new_order.save()
 
@@ -407,6 +410,24 @@ class OrderView(LoginRequiredMixin, View):
                 item.variant.save()
 
             cart_items.delete()
+
+            # Create OrderAddress and associate it with the new_order
+            new_order_address = OrderAddress(
+                first_name=selected_address.first_name,
+                last_name=selected_address.last_name,
+                address=selected_address.address,
+                address_line2=selected_address.address_line2,
+                country=selected_address.country,
+                city=selected_address.city,
+                state=selected_address.state,
+                postal_code=selected_address.postal_code,
+                phone_number=selected_address.phone_number,
+                email_address=selected_address.email_address,
+                order=new_order
+            )
+            new_order_address.save()
+
+
         applied_coupon_code = request.session.get('coupon_code')
         if applied_coupon_code:
             try:
@@ -423,8 +444,6 @@ class OrderView(LoginRequiredMixin, View):
 
         messages.success(request, 'Your order has been placed successfully!')
         return redirect('order_list')
-
-
 
 
 
@@ -488,7 +507,7 @@ def update_order_status(request):
 
         tax = Decimal(total_amount) * tax_rate
         
-        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address, discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
+        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
         razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         razorpay_order = razorpay_client.order.create({
             'amount': int(total_amount * 100),
@@ -512,6 +531,23 @@ def update_order_status(request):
                 item.variant.save()
 
             cart_items.delete()
+
+            # Create OrderAddress and associate it with the new_order
+            new_order_address = OrderAddress(
+                first_name=selected_address.first_name,
+                last_name=selected_address.last_name,
+                address=selected_address.address,
+                address_line2=selected_address.address_line2,
+                country=selected_address.country,
+                city=selected_address.city,
+                state=selected_address.state,
+                postal_code=selected_address.postal_code,
+                phone_number=selected_address.phone_number,
+                email_address=selected_address.email_address,
+                order=new_order
+            )
+            new_order_address.save()
+
         applied_coupon_code = request.session.get('coupon_code')
         if applied_coupon_code:
             try:
@@ -566,7 +602,7 @@ def wallet_payment(request):
     wallet_amount = wallet.amount
     
     if wallet_amount >= total_amount:
-        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', address=selected_address, discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
+        new_order = Order(user=request.user, total_amount=total_amount, status='Confirmed', discount=discount, payment_option=payment_option, created_at=created_at, tax = tax)
         new_order.is_paid = True    
 
         with transaction.atomic():
@@ -582,6 +618,21 @@ def wallet_payment(request):
                 wallet.save()
 
             cart_items.delete()
+            # Create OrderAddress and associate it with the new_order
+            new_order_address = OrderAddress(
+                first_name=selected_address.first_name,
+                last_name=selected_address.last_name,
+                address=selected_address.address,
+                address_line2=selected_address.address_line2,
+                country=selected_address.country,
+                city=selected_address.city,
+                state=selected_address.state,
+                postal_code=selected_address.postal_code,
+                phone_number=selected_address.phone_number,
+                email_address=selected_address.email_address,
+                order=new_order
+            )
+            new_order_address.save()
     else:
         messages.warning(request, 'Not Enough Balance in Wallet')
         return redirect('checkout')
@@ -607,7 +658,7 @@ def wallet_payment(request):
 class OrderItemListView(LoginRequiredMixin, View):
     template_name = 'order_list.html'
     
-    @never_cache
+    @method_decorator(never_cache)
     def get(self, request, *args, **kwargs):
         orders = Order.objects.filter(user=request.user)
         all_order_items = OrderItem.objects.filter(order__in=orders).order_by('-id')  # Sort by id in descending order
@@ -628,6 +679,7 @@ class ProductOrderDetailView(LoginRequiredMixin, View):
         order_item_id = kwargs.get('order_item_id')
         order_item = get_object_or_404(OrderItem, id=order_item_id)
         order = order_item.order
+        orderaddress = get_object_or_404(OrderAddress, order=order)
         if order.discount > 0:
             order_item.subtotal = (order_item.product.price * order_item.quantity) - order.discount
         else:
@@ -639,7 +691,7 @@ class ProductOrderDetailView(LoginRequiredMixin, View):
 
         order_item.return_option_available = self.is_return_option_available(order_item)
 
-        return render(request, self.template_name, {'order_item': order_item, 'order': order})
+        return render(request, self.template_name, {'order_item': order_item, 'order': order, 'orderaddress':orderaddress})
 
     def is_return_option_available(self, order_item):
         if order_item.status != 'cancelled':

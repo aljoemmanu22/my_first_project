@@ -45,7 +45,7 @@ class Address(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address=models.ForeignKey(Address,on_delete=models.SET_NULL,blank=True,null=True)
+    address = models.ForeignKey('OrderAddress', on_delete=models.SET_NULL, blank=True, null=True, related_name='orders')
     items = models.ManyToManyField('OrderItem', related_name='order_items')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -67,6 +67,24 @@ class Order(models.Model):
 
     def get_absolute_url(self):
         return reverse("order:order_detail", kwargs={"pk": self.pk})
+
+class OrderAddress(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_addresses')
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    company_name = models.CharField(max_length=50)
+    address = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255)
+    country = models.CharField(max_length=50)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20)
+    email_address = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"Address for Order {self.order.order_number}"
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
