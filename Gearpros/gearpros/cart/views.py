@@ -122,6 +122,7 @@ def remove_from_cart(request, cart_item_id):
     cart_item.delete()
     return redirect('cart_list')
 
+
 @login_required
 def checkout(request):        
     if not 'username' in request.session:
@@ -346,7 +347,7 @@ class OrderView(LoginRequiredMixin, View):
         elif action == 'cancel_order':
             return self.cancel_order(request)
     
-
+    @never_cache
     def place_order(self, request):
         print('Place Order method is executed.')
 
@@ -453,7 +454,7 @@ class OrderView(LoginRequiredMixin, View):
 
         return redirect('order_list')
 
-
+@never_cache
 @login_required
 def update_order_status(request):
     if not 'username' in request.session:
@@ -529,7 +530,7 @@ def update_order_status(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
 
-
+@never_cache
 def wallet_payment(request):
     cart = Cart.objects.get(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
@@ -605,7 +606,8 @@ def wallet_payment(request):
 
 class OrderItemListView(LoginRequiredMixin, View):
     template_name = 'order_list.html'
-
+    
+    @never_cache
     def get(self, request, *args, **kwargs):
         orders = Order.objects.filter(user=request.user)
         all_order_items = OrderItem.objects.filter(order__in=orders).order_by('-id')  # Sort by id in descending order

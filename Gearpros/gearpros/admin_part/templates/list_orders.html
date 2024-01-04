@@ -43,7 +43,7 @@
                             <td><b>{{ order.user.email }}</b></td>
                             <td>{{ order.total_amount }}</td>
                             <td>
-                                <span class="badge rounded-pill {% if order.status == 'Cancelled' %}alert-danger{% endif %}
+                                <span class="badge rounded-pill {% if order.status == 'cancelled' %}alert-danger{% endif %}
                                                                 {% if order.status == 'Confirmed' %}alert-warning{% endif %}
                                                                 {% if order.status == 'Shipped' %}alert-primary{% endif %}
                                                                 {% if order.status == 'Delivered' %}alert-success{% endif %}
@@ -54,14 +54,6 @@
                             <td>{{ order.created_at }}</td>
                             <td class="text-end">
                                 <a href="{% url 'order_detail' order_id=order.id %}" class="btn btn-md rounded font-sm">Detail</a>
-                                <div class="dropdown">
-                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="#">View detail</a>
-                                        <a class="dropdown-item" href="#">Edit info</a>
-                                        <a class="dropdown-item text-danger" href="#">Delete</a>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
                         {% endfor %}

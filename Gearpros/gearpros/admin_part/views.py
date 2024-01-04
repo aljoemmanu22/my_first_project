@@ -430,15 +430,15 @@ def edit_product(request, product_id):
                 Variant.objects.create(product=product, **variant_data)
 
             
-            for i in range(1, 6):
-                image_key = f'image{i}'
+            # Handle existing images
+            existing_images = ProductImage.objects.filter(product=product)
+            for i, image in enumerate(existing_images):
+                image_key = f'image{i + 1}'
                 image_file = request.FILES.get(image_key)
                 if image_file:
-                    product_image, created = ProductImage.objects.get_or_create(product=product)
-                    product_image.image = image_file
-
+                    image.image = image_file
                     try:
-                        product_image.save()
+                        image.save()
                     except ValidationError as e:
                         context['error'] = f'Error saving product image: {e}'
                         return render(request, 'edit_product.html', context)

@@ -63,6 +63,10 @@
                             <div class="card-body">
                                 <div>
                                     <label class="form-label">Images</label>
+                                    {% for image in images %}
+                                        <img src="{{ image.image.url }}" alt="Product Image" class="img-thumbnail mb-2" style="max-width: 100px;">
+                                    {% endfor %}
+                                    <br>
                                     <input type="file" name="image1" class="form-control mb-2" accept="image/*">
                                     <input type="file" name="image2" class="form-control mb-2" accept="image/*">
                                     <input type="file" name="image3" class="form-control mb-2" accept="image/*">
