@@ -36,13 +36,12 @@ def home(request):
     product_data = []   
     cart_item_count = 0
     count = 0
+    wishlist = None
     if request.user.is_authenticated:
         try:
-            cart = Cart.objects.get(user=request.user)
-            cart_items = CartItem.objects.get(cart=cart)
+            cart, created = Cart.objects.get_or_create(user=request.user)
             cart_item_count = CartItem.objects.filter(cart=cart).count()
-            print(cart_item_count)
-            wishlist = Wishlist.objects.get(user=request.user)
+            wishlist = Wishlist.objects.get_or_create(user=request.user)[0]
             count = wishlist.products.count()
         except Cart.DoesNotExist:
             cart_items = []
