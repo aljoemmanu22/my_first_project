@@ -34,7 +34,8 @@ def home(request):
     brands = Brand.objects.all() 
     core_products = Product.objects.filter(is_blocked=False)
     product_data = []   
-
+    cart_item_count = 0
+    count = 0
     if request.user.is_authenticated:
         try:
             cart = Cart.objects.get(user=request.user)
@@ -42,6 +43,7 @@ def home(request):
             cart_item_count = cart.items.count()
             wishlist = Wishlist.objects.get(user=request.user)
             count = wishlist.products.count()
+            print(cart_item_count)
         except Cart.DoesNotExist:
             cart_items = []
             cart_item_count = 0
