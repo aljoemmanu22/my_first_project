@@ -43,7 +43,7 @@
                             <td><b>{{ order.user.email }}</b></td>
                             <td>{{ order.total_amount }}</td>
                             <td>
-                                <span class="badge rounded-pill {% if order.status == 'cancelled' %}alert-danger{% endif %}
+                                <span class="badge rounded-pill {% if order.status == 'Cancelled' %}alert-danger{% endif %}
                                                                 {% if order.status == 'Confirmed' %}alert-warning{% endif %}
                                                                 {% if order.status == 'Shipped' %}alert-primary{% endif %}
                                                                 {% if order.status == 'Delivered' %}alert-success{% endif %}

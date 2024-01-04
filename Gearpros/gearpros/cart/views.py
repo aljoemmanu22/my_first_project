@@ -776,11 +776,11 @@ class CancelOrderItemView(LoginRequiredMixin, View):
 
                         messages.success(request, f'Order item canceled. Refunded ${refunded_amount:.2f} to your wallet.')
 
-                        # Check if the order contains only one item, then update the order status
-                        if order_item.order.order_items.count() == 1:
-                            order_item.order.status = "cancelled"
-                            order_item.order.save()
-                            messages.success(request, 'Order canceled as it contained only one item.')
+                # Check if the order contains only one item, then update the order status
+                if order_item.order.order_items.count() == 1:
+                    order_item.order.status = "Cancelled"
+                    order_item.order.save()
+                    messages.success(request, 'Order canceled as it contained only one item.')
 
         return redirect('my_account')
     
