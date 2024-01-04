@@ -18,6 +18,7 @@ urlpatterns=[
     path('my_account/', views.MyAccountView.as_view(), name='my_account'),
     path('edit_profile', views.edit_profile, name='edit_profile'),
     path('product_order_detail/<int:order_item_id>/', ProductOrderDetailView.as_view(), name='product_order_detail'),
+    path('get_cart_and_wishlist_counts/', views.get_cart_and_wishlist_counts, name='get_cart_and_wishlist_counts'),
     
     path('password_reset/', PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
     path('password_reset/done/', PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),

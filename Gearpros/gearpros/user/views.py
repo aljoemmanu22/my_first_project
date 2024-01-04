@@ -20,7 +20,7 @@ from admin_part.models import Brand, Coupons, Product, ProductImage, Variant, Us
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart
 from django.contrib.auth.mixins import LoginRequiredMixin
-from cart.models import Address, OrderItem, Order, Cart
+from cart.models import Address, OrderItem, Order, Cart, CartItem
 from django.views import View
 from social_django.models import UserSocialAuth
 from django.db.models import Q
@@ -39,11 +39,11 @@ def home(request):
     if request.user.is_authenticated:
         try:
             cart = Cart.objects.get(user=request.user)
-            cart_items = cart.items.all()
-            cart_item_count = cart.items.count()
+            cart_items = CartItem.objects.get(cart=cart)
+            cart_item_count = CartItem.objects.filter(cart=cart).count()
+            print(cart_item_count)
             wishlist = Wishlist.objects.get(user=request.user)
             count = wishlist.products.count()
-            print(cart_item_count)
         except Cart.DoesNotExist:
             cart_items = []
             cart_item_count = 0
@@ -84,6 +84,28 @@ def home(request):
 
     context = {'products': product_data, 'username': request.session.get('username'), 'brands': brands, 'cart_item_count': cart_item_count, 'categories': categories, 'wishlist_count':count, 'cart_item_count':cart_item_count}
     return render(request, 'index.html', context)
+
+# views.py
+
+from django.http import JsonResponse
+
+def get_cart_and_wishlist_counts(request):
+    if request.user.is_authenticated:
+        try:
+            cart = Cart.objects.get(user=request.user)
+            cart_item_count = CartItem.objects.filter(cart=cart).count()
+
+            wishlist = Wishlist.objects.get(user=request.user)
+            wishlist_count = wishlist.products.count()
+        except Cart.DoesNotExist:
+            cart_item_count = 0
+            wishlist_count = 0
+    else:
+        cart_item_count = 0
+        wishlist_count = 0
+
+    return JsonResponse({'cart_item_count': cart_item_count, 'wishlist_count': wishlist_count})
+
 
 
 # @never_cache

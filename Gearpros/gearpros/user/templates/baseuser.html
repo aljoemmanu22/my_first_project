@@ -89,13 +89,13 @@
                                 <div class="header-action-icon-2">
                                     <a href="{% url 'view_wishlist' %}">
                                         <img class="svgInject" alt="Evara" src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}">
-                                        <span class="pro-count blue">{{ wishlist_count }}</span>
+                                        <span class="pro-count blue" id="wishlist-count">{{ wishlist_count }}</span>
                                     </a>
                                 </div>
                                 <div class="header-action-icon-2">
                                     <a class="mini-cart-icon" href="{% url 'cart_list' %}">
                                         <img alt="Evara" src="{% static 'assets/imgs/theme/icons/icon-cart.svg' %}">
-                                        <span class="pro-count blue">{{ cart_item_count }}</span>
+                                        <span class="pro-count blue" id="cart-count">{{ cart_item_count }}</span>
                                     </a>
                                 </div>
                             </div>
@@ -345,7 +345,19 @@
     <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
+    <script>
+        function updateCartAndWishlistCounts() {
+            fetch('/get_cart_and_wishlist_counts/')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cart-count').innerText = data.cart_item_count;
+                    document.getElementById('wishlist-count').innerText = data.wishlist_count;
+                });
+        }
     
+        // Call the function on page load
+        document.addEventListener('DOMContentLoaded', updateCartAndWishlistCounts);
+    </script>
 </body>
 
 
