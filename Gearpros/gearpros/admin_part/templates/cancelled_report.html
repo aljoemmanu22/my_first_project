@@ -135,7 +135,7 @@
             <center>
             <div class="d-flex justify-content-center">
                 <a href="{% url 'stock_report' %}" class="btn btn-success mx-2 not_active">Stock</a>
-                <a href="{% url 'cancelled_report' %}" class="btn btn-success mx-2 not_active">Cancelled</a>
+                <a href="{% url 'cancelled_report' %}" class="btn btn-success mx-2 active">Cancelled</a>
             </div>
            </center>
         </div>
@@ -169,6 +169,7 @@
                                     <tr class="line">
                                         <th class="text-right"><strong>Order ID</strong></th>
                                         <th class="text-left"><strong>Product</strong></th>
+                                        <th class="text-left"><strong>User</strong></th>
                                         <th class="text-right"> <strong>Quantity</strong></th>
                                         <th class="text-right"><strong>Cancellation Reason</strong></th>
                                     </tr>
@@ -178,8 +179,9 @@
                                         <tr>
                                             <td>{{ item.order.id }}</td>
                                             <td>{{ item.product.name }}</td>
+                                            <td>{{ item.order.user.username }}</td>
                                             <td class="text-right">{{ item.quantity }}</td>
-                                            <td class="text-right">{{ item.cancellation_reason }}</td>
+                                            <td class="text-right">{{  item.cancellation_reason_entry.reason }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>

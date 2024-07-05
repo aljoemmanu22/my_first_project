@@ -42,7 +42,7 @@ def admin_home(request):
     print(total_available_category)
     total_pending = Order.objects.filter(is_ordered=True, status='Confirmed').count()
     total_delivered = Order.objects.filter(is_ordered=True, status='Delivered').count()
-    total_cancelled = Order.objects.filter(is_ordered=True, status='cancelled').count()
+    total_cancelled = Order.objects.filter(is_ordered=True, status='Cancelled').count()
     total_returned = Order.objects.filter(is_ordered=True, status='Returned').count()
 
     total_earned_amount = \
@@ -563,7 +563,6 @@ def admin_logout(request):
         messages.info(request, "Please log in as admin")
         return render(request,'admin_login.html')
     
-
 @never_cache
 def list_orders(request):
     if request.user.is_anonymous and not request.user.is_superuser:
