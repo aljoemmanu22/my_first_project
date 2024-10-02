@@ -3,7 +3,7 @@ from . import views
 from cart.views import ProductOrderDetailView
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.auth import views as auth_views
-from social_django.views import complete
+#from social_django.views import complete
 
 urlpatterns=[
     path('',views.home,name='home'),
