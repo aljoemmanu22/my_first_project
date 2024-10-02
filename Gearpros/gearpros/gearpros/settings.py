@@ -174,14 +174,9 @@ RAZORPAY_KEY_ID = 'rzp_test_Q65Jh6ChWL8736'
 RAZORPAY_KEY_SECRET = 'eRUdDzdf4BZ4bZAZfbK0nb5T'
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'social_core.backends.google.GoogleOAuth2',
-#     'user.backends.EmailBackend', 'django.contrib.auth.backends.ModelBackend',
-# ]
-
 AUTHENTICATION_BACKENDS = [
-    'user.backends.EmailBackend', 
-    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
+    'user.backends.EmailBackend', 'django.contrib.auth.backends.ModelBackend',
 ]
 
 
@@ -191,6 +186,6 @@ LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'login'
 
 
-#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '128967086634-9qu2hf2uqoa0ql1p2ntlsmji04fj1spb.apps.googleusercontent.com'
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-#SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/complete/google-oauth2/'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '128967086634-9qu2hf2uqoa0ql1p2ntlsmji04fj1spb.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'http://127.0.0.1:8000/complete/google-oauth2/'
