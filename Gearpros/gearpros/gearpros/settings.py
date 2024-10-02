@@ -174,10 +174,16 @@ RAZORPAY_KEY_ID = 'rzp_test_Q65Jh6ChWL8736'
 RAZORPAY_KEY_SECRET = 'eRUdDzdf4BZ4bZAZfbK0nb5T'
 
 
+# AUTHENTICATION_BACKENDS = [
+#     'social_core.backends.google.GoogleOAuth2',
+#     'user.backends.EmailBackend', 'django.contrib.auth.backends.ModelBackend',
+# ]
+
 AUTHENTICATION_BACKENDS = [
-    #'social_core.backends.google.GoogleOAuth2',
-    'user.backends.EmailBackend', 'django.contrib.auth.backends.ModelBackend',
+    'user.backends.EmailBackend', 
+    'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
