@@ -22,7 +22,7 @@ from cart.models import Cart
 from django.contrib.auth.mixins import LoginRequiredMixin
 from cart.models import Address, OrderItem, Order, Cart, CartItem
 from django.views import View
-from social_django.models import UserSocialAuth
+#from social_django.models import UserSocialAuth
 from django.db.models import Q
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Avg
