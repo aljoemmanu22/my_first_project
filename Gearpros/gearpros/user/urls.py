@@ -3,13 +3,13 @@ from . import views
 from cart.views import ProductOrderDetailView
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.auth import views as auth_views
-#from social_django.views import complete
+from social_django.views import complete
 
 urlpatterns=[
     path('',views.home,name='home'),
     path('login/',views.Login,name='login'),
-    #path('complete/google-oauth2/', complete, name='social_complete_google_oauth2'),
-    #path('social/', include('social_django.urls', namespace='social')),
+    path('complete/google-oauth2/', complete, name='social_complete_google_oauth2'),
+    path('social/', include('social_django.urls', namespace='social')),
     path('signup/',views.signup,name='signup'),
     path('logout/',views.Logout,name='logout'),
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
