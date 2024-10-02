@@ -8,7 +8,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns=[
     path('',views.home,name='home'),
     path('login/',views.Login,name='login'),
-    path('complete/google-oauth2/', complete, name='social_complete_google_oauth2'),
+    #path('complete/google-oauth2/', complete, name='social_complete_google_oauth2'),
     #path('social/', include('social_django.urls', namespace='social')),
     path('signup/',views.signup,name='signup'),
     path('logout/',views.Logout,name='logout'),
